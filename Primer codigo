@@ -1,0 +1,109 @@
+# Prueba 1
+
+#include <Stepper.h>
+#include <Servo.h>
+
+// Configuración del motor paso a paso
+const int stepsPerRevolution = 2048; // Depende del modo de operación
+Stepper stepper(stepsPerRevolution, 8, 10, 9, 11); // Pines IN1, IN3, IN2, IN4
+
+// Servos
+Servo direccionServo;  // Servo para girar el carro (H3-311)
+Servo escaneoServo;    // Micro servo para girar el sensor HC-SR04
+
+// Pines del sensor ultrasónico
+const int trigPin = ; //Poner los pines
+const int echoPin = ; //Poner los pines
+
+// Control de vueltas y recorrido
+int vueltasCompletas = 0;
+const int distSegura = 20; // cm
+
+void setup() {
+  Serial.begin(9600);
+
+  // Inicializar motor paso a paso
+  stepper.setSpeed(12); // RPM ajustable
+
+  // Inicializar servos
+  direccionServo.attach(5);    // Pin para H3-311 FRENTE
+  escaneoServo.attach(3);      // Pin para SG90 ULTRASONICO
+
+  // Inicializar pines del sensor ultrasónico
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+
+  // Colocar servo frontal en posición recta
+  direccionServo.write(90);
+}
+
+void loop() {
+  for (int vuelta = 0; vuelta < 3; vuelta++) {
+    for (int lado = 0; lado < 4; lado++) {
+      // Escaneo antes de avanzar
+      if (hayObstaculo()) {
+        evitarObstaculo();
+      }
+
+      avanzar(1000);  // Duración ajustable para recorrer un lado
+      girarEsquina(); // Giro de ~90 grados
+    }
+  }
+
+  // Finaliza el recorrido
+  while (true) {
+    stepper.step(0); // Detener el motor
+  }
+}
+
+void avanzar(int duracionMs) {
+  unsigned long inicio = millis();
+  while (millis() - inicio < duracionMs) {
+    stepper.step(1);
+  }
+}
+
+void girarEsquina() {
+  direccionServo.write(45);  // Gira hacia la derecha
+  delay(600);                // Ajusta el tiempo del giro según pruebas
+  direccionServo.write(90);  // Regresa a posición recta
+  delay(300);                // Estabilización
+}
+
+bool hayObstaculo() {
+  int distanciaMin = 999;
+
+  for (int angulo = 60; angulo <= 120; angulo += 30) {
+    escaneoServo.write(angulo);
+    delay(200);
+    int distancia = medirDistancia();
+    if (distancia < distanciaMin) {
+      distanciaMin = distancia;
+    }
+  }
+
+  escaneoServo.write(90); // Regresa al centro
+  return distanciaMin < distSegura;
+}
+
+int medirDistancia() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+
+  digitalWrite(trigPin, LOW);
+
+  long duracion = pulseIn(echoPin, HIGH);
+  int distancia = duracion * 0.034 / 2;
+
+  return distancia;
+}
+
+void evitarObstaculo() {
+  direccionServo.write(135); // Giro izquierdo para esquivar
+  avanzar(800);              // Ajusta la duración
+  direccionServo.write(90);  // Regresa al centro
+}
+##
