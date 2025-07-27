@@ -1,0 +1,31 @@
+// Pines del motor DC
+const int ENA = 4;
+const int IN1 = 7;
+const int IN2 = 6;
+
+void setup() {
+  pinMode(ENA, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+
+  Serial.begin(9600);
+  Serial.println("Prueba: motor adelante 2 segundos");
+  
+  motorAdelante();
+  delay(2000);
+  detenerMotor();
+}
+
+void loop() {
+  // Nada
+}
+
+void motorAdelante() {
+  digitalWrite(ENA, HIGH);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+}
+
+void detenerMotor() {
+  digitalWrite(ENA, LOW);
+}
