@@ -1,0 +1,20 @@
+#include <Servo.h>
+
+Servo direccionServo;
+
+void setup() {
+  direccionServo.attach(10); // Cambiar a 11 o 10
+  Serial.begin(9600);
+
+  direccionServo.write(90);  // Centro
+  delay(1000);
+  direccionServo.write(45);  // Derecha
+  delay(1000);
+  direccionServo.write(135); // Izquierda
+  delay(1000);
+  direccionServo.write(90);  // Volver al centro
+}
+
+void loop() {
+  // Nada
+}
