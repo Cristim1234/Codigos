@@ -1,0 +1,21 @@
+#include <Servo.h>
+
+Servo escaneoServo;
+
+void setup() {
+  escaneoServo.attach(11); // Cambiar a 11 o 10
+  Serial.begin(9600);
+
+  for (int angulo = 60; angulo <= 120; angulo += 30) // Cambiar angulos si es necesario{
+    escaneoServo.write(angulo);
+    Serial.print("Ángulo: ");
+    Serial.println(angulo);
+    delay(800);
+  }
+
+  escaneoServo.write(90); // Centro
+}
+
+void loop() {
+  // Nada
+}
